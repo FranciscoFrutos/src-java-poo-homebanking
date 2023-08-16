@@ -26,7 +26,7 @@ public class AccountController {
     }
 
     @RequestMapping("/accounts/{code}")
-    AccountDTO getAccount(@PathVariable Long code){
+    public AccountDTO getAccount(@PathVariable Long code){
         Optional<Account> account = accountRepository.findById(code);
         return account.map(AccountDTO::new).orElse(null);
     }

@@ -26,6 +26,11 @@ public class Client {
     private Set<ClientLoan> loans;
 
 
+
+    @OneToMany(mappedBy = "holder", fetch = FetchType.EAGER)
+    private Set<Card> cards = new HashSet<>();
+
+
     public Client(){
 
     }
@@ -43,6 +48,14 @@ public class Client {
         return this.loans;
     }
 
+    public Set<Card> getCards() {
+        return cards;
+    }
+
+    public void setCards(Set<Card> cards) {
+        this.cards = cards;
+    }
+
     public void setLoans(Set<ClientLoan> loans) {
         this.loans = loans;
     }
@@ -52,6 +65,10 @@ public class Client {
         this.loans.add(clientLoan);
     }
 
+    public void addCard(Card card){
+        card.setHolder(this);
+        this.cards.add(card);
+    }
     public void setAccounts(Set<Account> accounts) {
         this.accounts = accounts;
     }
