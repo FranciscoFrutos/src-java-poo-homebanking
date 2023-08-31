@@ -34,8 +34,11 @@ public class CardController {
         String clientEmail = authentication.getName();
         Client client = clientRepository.findByEmail(clientEmail);
 
-        if (client.getCards().size() >= 3){
-            return new ResponseEntity<>("Maximum number of cards reached", HttpStatus.FORBIDDEN );
+        if (cardType.equals(CardType.CREDIT) && client.getCards().stream().filter(card -> card.getType().equals(CardType.CREDIT)).count() >= 3){
+            return new ResponseEntity<>("Maximum number of credit cards reached", HttpStatus.FORBIDDEN );
+        }
+        if (cardType.equals(CardType.DEBIT) && client.getCards().stream().filter(card -> card.getType().equals(CardType.DEBIT)).count() >= 3){
+            return new ResponseEntity<>("Maximum number of credit cards reached", HttpStatus.FORBIDDEN );
         }
 
         Card card = new Card(

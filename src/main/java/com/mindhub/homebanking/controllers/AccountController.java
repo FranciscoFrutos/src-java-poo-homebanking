@@ -13,11 +13,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -43,6 +47,11 @@ public class AccountController {
     }
 
     @RequestMapping("/clients/current/accounts")
+    public List<AccountDTO> getAccounts(Authentication authentication){
+        Set<Account> accounts = clientRepository.findByEmail(authentication.getName()).getAccounts();
+        return accounts.stream().map(AccountDTO::new).collect(toList());
+    }
+    @RequestMapping(value = "/clients/current/accounts", method = RequestMethod.POST)
     public ResponseEntity<Object> createAccount(Authentication authentication){
         String clientEmail = authentication.getName();
         Client client = clientRepository.findByEmail(clientEmail);
