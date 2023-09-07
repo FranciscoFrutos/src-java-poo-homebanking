@@ -1,12 +1,12 @@
 package com.mindhub.homebanking.controllers;
 
-import com.mindhub.homebanking.models.Account;
-import com.mindhub.homebanking.models.Client;
-import com.mindhub.homebanking.models.Transaction;
-import com.mindhub.homebanking.models.TransactionType;
+import com.mindhub.homebanking.models.*;
 import com.mindhub.homebanking.repositories.AccountRepository;
 import com.mindhub.homebanking.repositories.ClientRepository;
 import com.mindhub.homebanking.repositories.TransactionRepository;
+import com.mindhub.homebanking.services.AccountService;
+import com.mindhub.homebanking.services.ClientService;
+import com.mindhub.homebanking.services.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,11 +24,11 @@ import java.time.LocalDate;
 public class TransactionController {
 
     @Autowired
-    AccountRepository accountRepository;
+    AccountService accountService;
     @Autowired
-    TransactionRepository transactionRepository;
+    TransactionService transactionService;
     @Autowired
-    ClientRepository clientRepository;
+    ClientService clientService;
 
     @Transactional
     @RequestMapping(value = "/transactions", method = RequestMethod.POST)
@@ -40,9 +40,9 @@ public class TransactionController {
             @RequestParam String toAccountNumber
             ){
 
-        Account sourceAccount = accountRepository.findByNumber(fromAccountNumber);
-        Account destinationAccount = accountRepository.findByNumber(toAccountNumber);
-        Client client = clientRepository.findByEmail(authentication.getName());
+        Account sourceAccount = accountService.findByNumber(fromAccountNumber);
+        Account destinationAccount = accountService.findByNumber(toAccountNumber);
+        Client client = clientService.findByEmail(authentication.getName());
 
         if (amount <= 0 || fromAccountNumber.isEmpty() || toAccountNumber.isEmpty()){
             return new ResponseEntity<>("Missing parameters.", HttpStatus.FORBIDDEN);
@@ -65,14 +65,14 @@ public class TransactionController {
 
         Transaction debitTransaction = new Transaction(TransactionType.DEBIT, amount, description + " " + fromAccountNumber, LocalDate.now());
         Transaction creditTransaction = new Transaction(TransactionType.CREDIT, amount, description + " " + toAccountNumber, LocalDate.now());
-        transactionRepository.save(debitTransaction);
-        transactionRepository.save(creditTransaction);
+        transactionService.save(debitTransaction);
+        transactionService.save(creditTransaction);
 
         sourceAccount.setBalance(sourceAccount.getBalance() - amount);
         destinationAccount.setBalance(destinationAccount.getBalance() + amount);
 
-        accountRepository.save(sourceAccount);
-        accountRepository.save(destinationAccount);
+        accountService.save(sourceAccount);
+        accountService.save(destinationAccount);
 
         return new ResponseEntity<>("Successful transaction", HttpStatus.CREATED);
 

@@ -6,6 +6,8 @@ import com.mindhub.homebanking.models.CardType;
 import com.mindhub.homebanking.models.Client;
 import com.mindhub.homebanking.repositories.CardRepository;
 import com.mindhub.homebanking.repositories.ClientRepository;
+import com.mindhub.homebanking.services.CardService;
+import com.mindhub.homebanking.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,17 +24,17 @@ import java.time.LocalDate;
 public class CardController {
 
     @Autowired
-    private CardRepository cardRepository;
+    private CardService cardService;
 
     @Autowired
-    private ClientRepository clientRepository;
+    private ClientService clientService;
 
     @RequestMapping(value = "/clients/current/cards", method = RequestMethod.POST)
     public ResponseEntity<Object> createCard(
             Authentication authentication,
             @RequestParam CardType cardType, @RequestParam CardColor cardColor){
         String clientEmail = authentication.getName();
-        Client client = clientRepository.findByEmail(clientEmail);
+        Client client = clientService.findByEmail(clientEmail);
 
         if (cardType.equals(CardType.CREDIT) && client.getCards().stream().filter(card -> card.getType().equals(CardType.CREDIT)).count() >= 3){
             return new ResponseEntity<>("Maximum number of credit cards reached", HttpStatus.FORBIDDEN );
@@ -48,7 +50,7 @@ public class CardController {
 
         client.addCard(card);
 
-        cardRepository.save(card);
+        cardService.save(card);
 
         return new ResponseEntity<>("Card created successfully", HttpStatus.CREATED);
 
