@@ -40,13 +40,15 @@ public class TransactionController {
             @RequestParam String toAccountNumber
             ){
 
-        Account sourceAccount = accountService.findByNumber(fromAccountNumber);
-        Account destinationAccount = accountService.findByNumber(toAccountNumber);
-        Client client = clientService.findByEmail(authentication.getName());
 
         if (amount <= 0 || fromAccountNumber.isEmpty() || toAccountNumber.isEmpty()){
             return new ResponseEntity<>("Missing parameters.", HttpStatus.FORBIDDEN);
         }
+
+        Account sourceAccount = accountService.findByNumber(fromAccountNumber);
+        Account destinationAccount = accountService.findByNumber(toAccountNumber);
+        Client client = clientService.findByEmail(authentication.getName());
+
         if (fromAccountNumber.equals(toAccountNumber)){
             return  new ResponseEntity<>("Source and destination accounts cannot be the same.", HttpStatus.FORBIDDEN);
         }
@@ -63,8 +65,10 @@ public class TransactionController {
             return new ResponseEntity<>("Insufficient balance", HttpStatus.FORBIDDEN);
         }
 
-        Transaction debitTransaction = new Transaction(TransactionType.DEBIT, amount, description + " " + fromAccountNumber, LocalDate.now());
+        Transaction debitTransaction = new Transaction(TransactionType.DEBIT, -amount, description + " " + fromAccountNumber, LocalDate.now());
         Transaction creditTransaction = new Transaction(TransactionType.CREDIT, amount, description + " " + toAccountNumber, LocalDate.now());
+        sourceAccount.addTransaction(debitTransaction);
+        destinationAccount.addTransaction(creditTransaction);
         transactionService.save(debitTransaction);
         transactionService.save(creditTransaction);
 

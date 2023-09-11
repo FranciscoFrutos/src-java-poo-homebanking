@@ -8,6 +8,7 @@ import com.mindhub.homebanking.services.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,8 +37,17 @@ public class AccountController {
     }
 
     @RequestMapping("/accounts/{code}")
-    public AccountDTO getAccount(@PathVariable Long code){
-        return accountService.findById(code);
+    public AccountDTO getAccount(@PathVariable Long code, Authentication authentication){
+        Set<Account> accounts = clientService.findByEmail(authentication.getName()).getAccounts();
+            return accountService.findById(code);
+    }
+
+    @RequestMapping("/clients/current/accounts/{code}")
+    public AccountDTO getCurrentAccount(@PathVariable Long code, Authentication authentication)
+    {
+        Set<Account> accounts = clientService.findByEmail(authentication.getName()).getAccounts();
+        Account currentAccount = accounts.stream().filter(account -> account.getId() == code).findFirst().orElse(null);
+        return new AccountDTO(currentAccount);
     }
 
     @RequestMapping("/clients/current/accounts")
