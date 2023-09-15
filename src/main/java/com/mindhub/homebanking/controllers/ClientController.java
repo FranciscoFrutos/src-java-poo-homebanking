@@ -33,23 +33,23 @@ public class ClientController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @RequestMapping("/clients")
+    @GetMapping("/clients")
     public List<ClientDTO> getClients() {
         return clientService.getAllClients();
     }
 
-    @RequestMapping("/clients/{code}")
+    @GetMapping("/clients/{code}")
     public ClientDTO getClient(@PathVariable Long code){
         return clientService.findById(code);
     }
 
-    @RequestMapping("/clients/current")
+    @GetMapping("/clients/current")
     public ClientDTO getCurrentClient(Authentication authentication){
         return clientService.findDTOByEmail(authentication.getName());
     }
 
 
-    @RequestMapping(path = "/clients", method = RequestMethod.POST)
+    @PostMapping("/clients")
     public ResponseEntity<Object> register(
             @RequestParam String firstName, @RequestParam String lastName,
             @RequestParam String email, @RequestParam String password){

@@ -32,12 +32,12 @@ public class LoanController {
     @Autowired
     private ClientLoanService clientLoanService;
 
-    @RequestMapping("/loans")
+    @GetMapping("/loans")
     public List<LoanDTO> getLoans(){
         return loanService.getAllLoans();
     }
 
-    @RequestMapping(value = "/loans", method = RequestMethod.POST)
+    @PostMapping("/loans")
     @Transactional
     public ResponseEntity<Object> createLoan(
             @RequestBody LoanApplicationDTO loanApplicationDTO,
